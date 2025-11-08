@@ -3,8 +3,18 @@ const authController = require('../controllers/authController');
 const { identifier } = require('../middlewares/identification');
 const router = express.Router();
 
+// Debug middleware
+router.use((req, res, next) => {
+  console.log('🔍 Auth route hit:', req.method, req.path);
+  console.log('Headers:', req.headers);
+  next();
+});
+
 // Auth routes
-router.post('/signup', authController.signup);
+router.post('/signup', (req, res, next) => {
+  console.log('📝 Signup attempt received');
+  authController.signup(req, res);
+});
 router.post('/signin', authController.signin);
 router.post('/signout', identifier, authController.signout);
 
@@ -18,4 +28,4 @@ router.patch('/send-forgot-password-code', authController.sendForgotPasswordCode
 router.patch('/verify-forgot-password-code', authController.verifyForgotPasswordCode);
 router.patch('/update-fcm-token', identifier, authController.updateFcmToken);
 
-module.exports = router;
+module.exports = router;  
