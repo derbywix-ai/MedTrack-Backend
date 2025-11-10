@@ -14,10 +14,10 @@ const transport = require('../middlewares/sendMail');
 // SIGNUP
 // ======================================
 exports.signup = async (req, res) => {
-  const { email, password, name, phone } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const { error } = signupSchema.validate({ email, password, name, phone });
+    const { error } = signupSchema.validate({ email, password });
     if (error) {
       return res
         .status(401)
@@ -32,12 +32,7 @@ exports.signup = async (req, res) => {
     }
 
     const hashedPassword = await doHash(password, 12);
-    const newUser = new User({ 
-      email, 
-      password: hashedPassword,
-      name,
-      phone
-    });
+    const newUser = new User({ email, password: hashedPassword });
     const result = await newUser.save();
     result.password = undefined;
 
@@ -93,6 +88,7 @@ exports.signin = async (req, res) => {
         .json({ success: false, message: 'Invalid credentials!' });
     }
 
+    // ✅ Generate token on signin
     const token = jwt.sign(
       {
         userId: existingUser._id,

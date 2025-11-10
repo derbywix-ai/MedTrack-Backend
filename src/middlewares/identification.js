@@ -10,21 +10,15 @@ exports.identifier = (req, res, next) => {
 
     let token;
 
-    // 1️⃣ Check Authorization header FIRST (for mobile/API)
-    if (req.headers.authorization) {
+    // 1️⃣ Handle Postman requests
+    if (req.headers.client && req.headers.client.toLowerCase() === 'not-browser') {
       token = req.headers.authorization;
-      console.log('✅ Token found in Authorization header');
-    }
-    // 2️⃣ Handle Postman requests
-    else if (req.headers.client && req.headers.client.toLowerCase() === 'not-browser') {
-      token = req.headers.authorization;
-    }
-    // 3️⃣ Handle browser requests (cookies)
-    else {
+    } else {
+      // 2️⃣ Handle browser requests (cookies)
       token = req.cookies['Authorization'];
     }
 
-    // 4️⃣ No token at all
+    // 3️⃣ No token at all
     if (!token) {
       console.log('❌ No token provided!');
       return res
@@ -32,10 +26,10 @@ exports.identifier = (req, res, next) => {
         .json({ success: false, message: 'Unauthorized: No token provided' });
     }
 
-    // 5️⃣ Ensure "Bearer" prefix
+    // 4️⃣ Ensure "Bearer" prefix
     const userToken = token.startsWith('Bearer ') ? token.split(' ')[1] : token;
 
-    // 6️⃣ Verify JWT
+    // 5️⃣ Verify JWT
     const decoded = jwt.verify(userToken, process.env.TOKEN_SECRET);
     console.log('✅ JWT Verified:', decoded);
 
